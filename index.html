@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- the below meta tag is default in most modern browsers. however if you have an
+  older browser, the emojis may not show up properly. In which case you need this meta
+  tag. Read more here: https://teamtreehouse.com/community/meta-charsetutf8-what-does-this-mean-or-what-does-it-do-i-deleted-it-from-the-code-and-nothing-changed -->
+  <meta charset="utf-8" >  
+  <title>Monster Slayer</title>
+  <link rel="stylesheet" type="text/css" href="./style.css">
+
+</head>
+<body id="mainHolder">
+    <div id="app">
+        <div>
+            <img class="user" src="./user.png" alt="You">
+            <div id="progressbar" @input="watchwinner">
+                <div id="prog1" @input="watchcoloru" :style="{width: userhealth, backgroundColor: usercolor}">{{ userhealth }}</div>
+            </div>
+        </div>
+        
+        <div class="monst">
+            <img class="monster" src="./monster.png" alt="Monster">
+            <div id="progressbar" @input="watchwinner">
+                <div id="prog2" @input="watchcolorm" :style="{width: monsterhealth, backgroundColor: monstercolor}">{{ monsterhealth }}</div>
+            </div>
+        </div>
+        <div id="buttons">
+            <button @click="buttonshow =!buttonshow" v-if="!buttonshow">Start New Game</button>
+            <button v-if="buttonshow" @click="attack">Attack</button>
+            <button v-if="buttonshow" @click="specialattack">S Attack</button>
+         
+            <button v-if="buttonshow" @click="heal">Heal</button>
+            <button v-if="buttonshow" @click="armor">Equipt Armor</button>
+            <button v-if="buttonshow" @click="handmadepotion">Handmade Potion</button>
+            <button v-if="buttonshow" @click="ccw">Counter Clockwise</button>
+            <button v-if="buttonshow" @click="trickster">Trickster</button>
+            <button v-if="buttonshow" @click="flipflop">Flip Flop</button>
+            <button v-if="giveupbutton" @click="giveup">Give up</button>
+            
+        </div>
+        <div id="list">
+            <ul v-if="tricksterb===false" v-for="log in logs" id="ulist">{{ log }}</ul>
+       
+        </div>
+    
+    </div>
+   
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.26/vue.min.js"></script>
+  <script>
+    new Vue ({
+        el: '#app',
+        data: {
+            buttonshow : false,
+            monsterhealth : "100%",
+            userhealth : "100%",
+            monsterhealthnum : 100,
+            userhealthnum : 100,
+            monstercolor : "green",
+            usercolor : "green",
+            sattackcooldown : false,
+            sattackcooldownduration : 0,
+            logs: [],
+            armorb: false,
+            giveupbutton: false,
+            handmadepotionb: false,
+            counterclockwise: false,
+            tricksterb: false,
+            flipflopb: false,
+            handmadepotionused: false
+        },
+        computed: {
+            watchcolorm: function(){
+                if (this.tricksterb !=true){
+                    if (this.monsterhealthnum <= 30){
+                  return this.monstercolor = "red";
+               }
+               if (this.monsterhealthnum <= 60){
+                   return this.monstercolor = "gold";
+               }
+                }
+                else{
+                
+                    return this.monstercolor = "gray";
+                }
+               
+          
+             
+            },
+            watchcoloru: function(){
+                
+                if (this.userhealthnum <= 30){
+                  return this.usercolor = "red";
+               }
+               if (this.userhealthnum <= 60){
+                   this.usercolor = "gold";
+                  return this.giveupbutton=true;
+               }
+               if (this.userhealthnum > 60){
+                return this.usercolor = "green";
+               }
+               
+            },
+            watchwinner: function(){
+                if ( this.handmadepotionb === true){
+                    var random_boolean = Math.random() < 0.07;
+                    if (random_boolean===true){
+                        alert("Handmade potion has drained 20% of your healthbar!")
+                        this.userhealth = (this.userhealthnum - 20) + "%";
+                        this.userhealthnum -= 20
+             
+                        this.handmadepotionb=false;
+                    }else{
+                        
+                    }
+                }else{
+                    
+                }
+                if (this.userhealthnum<=0){
+                    this.giveup();
+                    return alert("The monster won the game! The game will now reset and you may start a new one")
+                 
+                 
+                }
+                if (this.monsterhealthnum<=0){
+                    this.giveup();
+                    return alert("You won the game! The game will now reset and you may start a new one")
+           
+                }
+            }
+        },
+        methods: {
+            
+            giveup: function(){
+                try{
+                    this.buttonshow = false;
+                this.monsterhealth = "100%";
+                this.userhealth = "100%";
+                this.monsterhealthnum = 100;
+                this.userhealthnum = 100;
+                this.monstercolor = "green";
+                this.usercolor = "green";
+                this.sattackcooldown = false;
+                this.sattackcooldownduration = 0;
+                this.armorb = false;
+                this.giveupbutton = false;
+                this.handmadepotionb = false;
+                this.counterclockwise = false;
+                this.tricksterb = false;
+                this.flipflopb = false;
+                this.handmadepotionused = false;
+                } catch{
+                    alert("Failed to reset the game")
+                }
+                 
+                
+            },
+            attack: function(){
+                if (this.monsterhealthnum>0 && this.userhealthnum>0){
+                    var attackvalue = 0;
+                    if (this.armorb===true){
+                       attackvalue = Math.floor(Math.random() * 7);
+                    }else{
+                      attackvalue = Math.floor(Math.random() * 11);
+                    }
+                if (this.tricksterb ===true){
+                    this.monsterhealth = "100%";
+                }else{
+                    this.monsterhealth = this.monsterhealthnum - attackvalue + "%";
+                }
+               
+               this.monsterhealthnum = this.monsterhealthnum - attackvalue;
+               this.logs.push("You attacked the monster and gave "+attackvalue+" percent damage")
+             
+               var monsterattackvalue = Math.floor(Math.random() * 11);
+               if (this.armorb === true){
+                   if (monsterattackvalue >= 3){
+                    var armordefendvalue = (Math.random() * (7 - 3 + 1) ) << 0;
+                    this.userhealth = this.userhealthnum + armordefendvalue - monsterattackvalue + "%";
+                    this.userhealthnum = this.userhealthnum + armordefendvalue - monsterattackvalue;
+                    this.logs.push("Monster attacked you and you were about to lose "+monsterattackvalue+" percent of your health but your armor protected you by "+ armordefendvalue+" percent")
+                   }else{
+                    this.userhealth = this.userhealthnum - monsterattackvalue + "%";
+                    this.userhealthnum = this.userhealthnum - monsterattackvalue;
+                    this.logs.push("Monster attacked you and you lost "+monsterattackvalue+" percent health (since the damage was lower than 5% your armor did nothing!)")
+                   }
+               }else{
+                this.userhealth = this.userhealthnum - monsterattackvalue + "%";
+               this.userhealthnum = this.userhealthnum - monsterattackvalue;
+               this.logs.push("Monster attacked you and you lost "+monsterattackvalue+" percent health")
+               }
+              
+               if (this.sattackcooldown === true){
+                this.sattackcooldownduration -= 1
+                    if (this.sattackcooldownduration === 0){
+                        this.sattackcooldown = false;
+                    }
+               }
+                }
+               
+            },
+            specialattack: function(){
+                if (this.monsterhealthnum>0 && this.userhealthnum>0){
+                    if (this.sattackcooldown === false){
+                       
+                    if (this.armorb===true){
+                        if (this.tricksterb ===true){
+                            this.monsterhealth = "100%";
+                        }else{
+                            this.monsterhealth = this.monsterhealthnum - 6 + "%";
+                        }
+                     
+                         this.monsterhealthnum = this.monsterhealthnum - 6;
+                         this.logs.push("You used special attack on the monster and gave 6 percent damage")
+                    }else{
+                        if (this.tricksterb ===true){
+                            this.monsterhealth = "100%";
+                        }else{
+                            this.monsterhealth = this.monsterhealthnum - 10 + "%";
+                        }
+                        this.logs.push("You used special attack on the monster and gave 10 percent damage")
+                    }
+          
+               
+               
+               var monsterattackvalue = Math.floor(Math.random() * 16);
+               if (this.armorb === true){
+                   if (monsterattackvalue >= 9){
+                    var armordefendvalue = Math.floor(Math.random() * 10);
+                    this.userhealth = this.userhealthnum + armordefendvalue - monsterattackvalue + "%";
+                    this.userhealthnum = this.userhealthnum + armordefendvalue - monsterattackvalue;
+                    this.logs.push("Monster attacked you and you were about to lose "+monsterattackvalue+" percent of your health but your armor protected you by "+ armordefendvalue+" percent");
+                   }else{
+                    this.userhealth = this.userhealthnum - monsterattackvalue + "%";
+                    this.userhealthnum = this.userhealthnum - monsterattackvalue;
+                    this.logs.push("Monster attacked you and you lost "+monsterattackvalue+" percent health (since the damage was lower than 9% your armor did nothing!)")
+                   }
+               }else{
+                this.userhealth = this.userhealthnum - monsterattackvalue + "%";
+               this.userhealthnum = this.userhealthnum - monsterattackvalue;
+               this.logs.push("Monster also attacked you and you lost "+ monsterattackvalue+" percent health")
+               }
+               
+               this.sattackcooldown = true;
+               if (this.counterclockwise===true){
+                this.sattackcooldownduration = 3;
+               }else{
+                this.sattackcooldownduration = 4;
+               }
+            
+               } else{
+                   alert("Special attack is on cooldown! You have to do "+ this.sattackcooldownduration.toString()+" more actions other than special attack to remove the cooldown.")
+               }
+
+                }
+                
+            },
+            armor: function(){
+                if (this.armorb===false){
+                    var txt;
+                    var r = confirm("Your attacks will be less efficient and you wont be able to heal until you click this button again and disable armor! Armor will make the monster's attack less efficient. ");
+                    if (r == true) {
+                    txt = "Equipped. If you want to cancel armor at any time, click this button again";
+                    this.armorb=true;
+                    } else{
+                        this.armorb=false;
+                    }
+                  
+                }else{
+                    this.armorb=false;
+                    alert("You dequipped your armor!")
+                }
+            },
+            ccw: function(){
+                var txt;
+                    var r = confirm("Counter Clockwise disables your ability to heal and will decrease special attack's cooldown token by 1");
+                    if (r === true) {
+                    alert("You enabled counter clockwise");
+                    this.counterclockwise=true;
+                    } else{
+                     
+                    }
+            },
+            flipflop: function(){
+                var txt;
+                    var r = confirm("Flip Flop will swap your health with your opponent's health but instead will heal your opponent to your current health state.");
+                    if (r === true) {
+                        if (this.flipflopb === false){
+                            if (this.monsterhealthnum> this.userhealthnum){
+                            if (this.monsterhealthnum - this.userhealthnum<30){
+                                if (this.userhealthnum < 40){
+                                    alert("Flip Flop may only be used when you have more than 40% health");
+                                }else{
+                                    alert("You enabled flip flop");
+                                var tempuserhealth = this.userhealth;
+                                var tempuserhealthnum = this.userhealthnum;
+                                this.userhealth = this.monsterhealth;
+                                this.userhealthnum = this.monsterhealthnum;
+                                this.monsterhealth = tempuserhealth;
+                                this.monsterhealthnum = tempuserhealthnum;
+                                this.flipflopb = true;
+                                }
+                                
+                            }else{
+                                alert("Flip Flop may only be used when you have less than 30% difference with your opponent's health");
+                            }
+                           
+                           
+                        }
+                        else{
+                            alert("Flip Flop may only be used when your health is less than your opponent's health");
+                        }
+                        }else{
+                            alert("You can only use flip flop once per game!")
+                        }
+                       
+                    } else{
+                     
+                    }
+            },
+            trickster: function(){
+                if (this.tricksterb===false){
+                    var txt;
+                    var r = confirm("Trickster will disable your ability to see enemy's healthbar / general logs and will give instantly 15% damage if you guess that your enemy's health value is even. If you fail to guess corectly, you will instead lose 5% of your healthbar.");
+                    if (r === true) {
+                    
+                    alert("Activated. Press this button again to use the ability");
+                    this.monsterhealth = "100%";
+                    this.tricksterb=true;
+                    } else{
+                     
+                    }
+                }else{
+                    var txt;
+                    var r = confirm("if your enemy's health is even, give 15% damage. If you fail to guess corectly, you will instead lose 5% of your healthbar");
+                    if (r === true) {
+                    
+                    function isEven(n) {
+                    return n % 2 == 0;
+                    }
+                    if (isEven(this.monsterhealthnum)){
+                        alert("Your guess was right and you gave 15% damage to the monster")
+                        this.monsterhealthnum -= 15
+                    }else{
+                        alert("Your guess was wrong and you will lose 5% of your health")
+                        this.userhealth = (this.userhealthnum - 5) + "%";
+                        this.userhealthnum -= 5
+                    }
+                    } else{
+                     
+                    }
+                }
+            
+            },
+            handmadepotion: function(){
+                if (this.handmadepotionused === false)
+                {
+                    if (this.userhealthnum >= 30){
+                    
+                    var txt;
+                    var r = confirm("Handmade potion will instantly heal you by 20% but will also drain 20% of your remaining health on a random point of the game!");
+                    if (r === true) {
+                    if (this.userhealthnum+20<100){
+                    alert("You drank handmade potion");
+                
+                    this.handmadepotionb= true;
+                    this.userhealth = (this.userhealthnum + 20) + "%";
+                    this.userhealthnum += 20;
+                    this.handmadepotionused = true;
+                    } else{
+                        alert("You can't drink handmade potion to gain extra health!")
+                    }
+                    }
+                    
+                } else{
+                    alert("You may only drink handmade poition when your health is above 30%!")
+                }
+                }else{
+                    alert("You may only drink handmade poition once per game!")
+                }
+               
+            },
+            heal: function(){
+                if (this.monsterhealthnum>0 && this.userhealthnum>0){
+                    if (this.armorb === true){
+                        alert("You have armor equipped! You can't heal unless you take out your armor")
+                    } if (this.counterclockwise===true){
+                        alert("You have enabled counter clockwise and you can't heal!")
+                    } if (this.counterclockwise!=true && this.armorb != true) {
+                        var healvalue = Math.floor(Math.random() * 10);
+                        if (this.userhealthnum+healvalue<= 30){
+                            this.userhealth = this.userhealthnum + healvalue + "%";
+                            this.userhealthnum = this.userhealthnum + healvalue;
+                            var monsterattackvalue = Math.floor(Math.random() * 7);
+                            this.userhealth = this.userhealthnum - monsterattackvalue + "%";
+                            this.userhealthnum = this.userhealthnum - monsterattackvalue;
+                            this.logs.push("You healed yourself by "+healvalue+" percent and the monster attacked you and you lost "+monsterattackvalue+" percent health")
+                            if (this.sattackcooldown === true){
+                                this.sattackcooldownduration -= 1
+                                    if (this.sattackcooldownduration === 0){
+                                        this.sattackcooldown = false;
+                                    }
+                            }
+                                
+                        }else{
+                            alert("You may only heal when you have less than 30% health left")
+                        }
+                    }
+                       
+               
+                 }
+                   
+                
+            }
+        }
+    });
+  </script>
+</body>
+</html>
